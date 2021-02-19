@@ -21,10 +21,10 @@ app.get('/api/hello', function(req, res) {
 
 //handle new url input
 app.post('/api/shorturl/new', (req, res) => {
-  let orignal = req.body;
+  let original = req.body.url;
   let short = '';
 
-  console.log(orignal)
+  console.log(original)
 
   res.json({
     original_url: original,
