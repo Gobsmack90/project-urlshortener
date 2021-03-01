@@ -3,6 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+const mongodb = require('mongodb');
+const mongoose = require('mongoose');
+
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -10,6 +13,7 @@ app.use(cors());
 
 app.use('/public', express.static(`${process.cwd()}/public`));
 
+//requred to use req.body from the html form
 app.use(express.urlencoded({
   extended: true
 }));
@@ -27,8 +31,6 @@ app.get('/api/hello', function(req, res) {
 app.post('/api/shorturl/new', (req, res) => {
   let original = req.body.url;
   let short = '';
-
-  console.log(original)
 
   res.json({
     original_url: original,
