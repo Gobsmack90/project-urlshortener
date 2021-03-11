@@ -1,5 +1,6 @@
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
+const url = require('./models/url.js');
 process.env.MONGO_URI='mongodb+srv://Gobsmack:asdf1234@cluster0.zb2i8.mongodb.net/<dbname>?retryWrites=true&w=majority';
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -30,6 +31,19 @@ let checkUrlRecord = (url) => {
     });
 };
 
+let urlRedirect = (shortUrl) => {
+    return new Promise((resolve, reject) => {
+        Url.findOne({ short_url: shortUrl }, (err, shortUrl) => {
+            if (!shortUrl) return false;
+
+            return ShortUrl.save(() => {
+                resolve(shortUrl);
+            })
+        })
+    })
+}
+
 exports.UrlModel = Url;
 exports.createAndSaveUrl = createAndSaveUrl;
 exports.checkUrlRecord = checkUrlRecord;
+exports.urlRedirect = urlRedirect;
