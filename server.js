@@ -42,6 +42,11 @@ app.post('/api/shorturl/new', (req, res) => {
   });
 })
 
+const Url = require("./data/index.js").UrlModel;
+
+const createUrl = require("./data/index.js").createAndSaveUrl;
+const checkUrl = require("./data/index.js").checkUrlRecord;
+
 //get new url
 app.get('/api/shorturl/:short_url', (req, res) => {
   
