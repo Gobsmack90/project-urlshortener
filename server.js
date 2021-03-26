@@ -10,13 +10,8 @@ process.env.MONGO_URI='mongodb+srv://Gobsmack:asdf1234@cluster0.zb2i8.mongodb.ne
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //database functions
-const Url = require("./data/index.js").UrlModel;
-
-const createUrl = require("./data/index.js").createAndSaveUrl;
-const checkUrl = require("./data/index.js").checkUrlRecord;
-const urlRedirect = require("./data/index.js").urlRedirect;
-const { createAndSaveUrl } = require('./data/index.js');
-
+const checkUrlRecord = require("./data/index.js").checkUrlRecord;
+const readShortUrl = require("./data/index.js").readShortUrl;
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -32,32 +27,36 @@ app.use(express.urlencoded({
 
 app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
-  // createAndSaveUrlInt(done);
 });
 
-
-
-//handle new url input
+// handle new url input
 app.post('/api/shorturl/new', (req, res) => {
-  // let url = checkUrl(req.body.url, /*int*/);
-  //save original url to database and get short_url
-  createAndSaveUrl(req.body.url).then((url)=>{
-    console.log(url)
-  });
+  let url = req.body.url;
 
-  // res.json({
-  //   original_url: url.original_url,
-  //   short_url: url.short_url
-  // });
-})
+  var validUrl = /^(ftp|http|https):\/\/[^ "]+$/;
+  
+  if (validUrl.test(url)) {
+    checkUrlRecord(url).then((data) => {
+      res.json({
+        original_url: data.original_url,
+        short_url: data.short_url
+      });
+    })
+  } else {
+    res.json({error: "Invalid URL"
+    })
+  }
+});
 
 //redirect using short url
 app.get('/api/shorturl/:short_url', (req, res) => {
   let shortUrl = req.params.short_url;
-  let url = urlRedirect(shortUrl);
-  if (!url) { return res.json({"error":"Not Found"}) }
-
-  res.redirect(url.original_url)
+  
+  readShortUrl(shortUrl).then((data) => {
+    if (data === null) {
+      res.json({error: "No short URL found for the given input."});
+    } else {res.redirect(data)}
+  })
 })
 
 app.listen(port, function() {
